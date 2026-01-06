@@ -17,11 +17,11 @@ GOOGLE_API_KEY = "-r4g8"
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # الروابط
-SCOUT_BASE_URL = "https://f7njguw70xmxr3-8000.proxy.runpod.net/v1" 
+SCOUT_BASE_URL = "http://localhost:8000/v1"
 SCOUT_API_KEY = "EMPTY"
 SCOUT_MODEL_NAME = "Qwen/Qwen2.5-14B-Instruct-AWQ"
 
-JUDGE_BASE_URL = "https://f7njguw70xmxr3-8000.proxy.runpod.net/v1" 
+JUDGE_BASE_URL = "http://localhost:8000/v1"
 JUDGE_API_KEY = "EMPTY"
 JUDGE_MODEL_NAME = "Qwen/Qwen2.5-14B-Instruct-AWQ"
 
@@ -250,7 +250,7 @@ class WebSearchSystem:
 
         # 2. المسح
         yield await self.emit("evidence", "المسح السريع (Turbo Mode)...", "Scout Launch")
-        sem_scout = asyncio.Semaphore(500) 
+        sem_scout = asyncio.Semaphore(1000) 
 
         async def protected_scout(chunk, prompt, type):
             async with sem_scout:
