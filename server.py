@@ -13,7 +13,7 @@ import google.generativeai as genai
 # ==========================================
 # ⚙️ الإعدادات (نفس إعداداتك المستقرة)
 # ==========================================
-GOOGLE_API_KEY = "AIzaSyDvdlS0Zzl3GA1W8gBICf6S1YmYVP-r4g8"
+GOOGLE_API_KEY = "-r4g8"
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # الروابط
