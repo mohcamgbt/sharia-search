@@ -413,7 +413,7 @@
                 formData.append('file', file);
 
                 try {
-                    const res = await fetch('http://localhost:5001/upload_file', {
+                    const res = await fetch('/upload_file', {
                         method: 'POST',
                         body: formData
                     });
@@ -539,7 +539,7 @@
                 setApiError(null);
 
                 try {
-                    const response = await fetch('http://localhost:5001/chat_stream', {
+                    const response = await fetch('/chat_stream', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
