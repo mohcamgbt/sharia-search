@@ -14,7 +14,6 @@ import uvicorn
 # ==========================================
 # ⚙️ الإعدادات 
 # ==========================================
-GOOGLE_API_KEY = AIzaSyAFNp2w5HI5CRFYWgkCO6ulnavy8Ht1Ow4" # ضع مفتاحك هنا
 genai.configure(api_key=GOOGLE_API_KEY)
 
 MODEL_NAME = 'gemini-2.5-pro'
