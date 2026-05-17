@@ -3,17 +3,18 @@ import json
 import asyncio
 import re
 import tempfile
+import time
 from typing import AsyncGenerator
 from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 import google.generativeai as genai
 import uvicorn
 
 # ==========================================
 # ⚙️ الإعدادات 
 # ==========================================
-GOOGLE_API_KEY = "AIzaSyAFNp2w5HI5CRFYWgkCO6ulnavy8Ht1Ow4" # ضع مفتاحك هنا
+GOOGLE_API_KEY = "..." # ضع مفتاحك هنا
 genai.configure(api_key=GOOGLE_API_KEY)
 
 MODEL_NAME = 'gemini-2.5-pro'
@@ -23,8 +24,8 @@ BOOKS_INFO = [
     {"path": "قرارات الهيئة الشرعية بمصرف الراجحي (الجزء الأول)_vision.txt", "name": "قرارات الهيئة الراجحي (ج1)"},
     {"path": "قرارات الهيئة الشرعية بمصرف الراجحي (الجزء الثاني)_vision.txt", "name": "قرارات الهيئة الراجحي (ج2)"},
     {"path": "المعايير الشرعية ايوفي_vision.txt", "name": "المعايير الشرعية ايوفي"}
-   
 ]
+
 # ==========================================
 # 📝 التلقينات
 # ==========================================
@@ -84,11 +85,24 @@ REDUCE_PROMPT = """
 class WebSearchSystem:
     def __init__(self):
         self.books_data = {} 
+        self.last_upload_time = 0
+        self.upload_interval = 40 * 3600  # 40 ساعة بالثواني
         self._load_and_prepare_data()
 
     def _load_and_prepare_data(self):
         print("\n📥 [النظام] جاري تحميل الكتب واستخراج الأرقام الحقيقية للصفحات...")
         
+        # تنظيف الملفات القديمة من سيرفرات جوجل لتجنب تراكمها وتجاوز حدود الحساب
+        for b_name, data in self.books_data.items():
+            if "uploaded_file" in data:
+                try:
+                    genai.delete_file(data["uploaded_file"].name)
+                    print(f"🧹 تم حذف النسخة القديمة من: {b_name}")
+                except Exception as e:
+                    print(f"⚠️ لم يتمكن من حذف {b_name} القديم: {e}")
+        
+        self.books_data.clear()
+
         for book in BOOKS_INFO:
             path = book["path"]
             b_name = book["name"]
@@ -144,11 +158,20 @@ class WebSearchSystem:
             except Exception as e:
                 print(f"❌ خطأ في رفع {b_name}: {e}")
 
+        # تحديث وقت آخر عملية رفع ناجحة
+        self.last_upload_time = time.time()
+
     async def emit(self, type_str, content, title=""):
         data = json.dumps({"type": type_str, "content": content, "title": title}, ensure_ascii=False)
         return f"{data}\n"
 
     async def process_stream(self, query: str, history: list) -> AsyncGenerator[str, None]:
+        # آلية التجديد التلقائي قبل تجاوز 48 ساعة
+        if time.time() - self.last_upload_time > self.upload_interval:
+            print("🔄 [النظام] مرت 40 ساعة، جاري تجديد رفع الملفات تلقائياً لتجنب الحذف...")
+            yield await self.emit("evidence", "جاري تحديث ملفات النظام والموسوعة لضمان استمرار الخدمة...", "تحديث النظام")
+            self._load_and_prepare_data()
+
         print("\n" + "="*60 + f"\n🚀 [طلب جديد] السؤال الأصلي: {query}\n" + "="*60)
         
         model = genai.GenerativeModel(MODEL_NAME)
@@ -233,23 +256,19 @@ class WebSearchSystem:
             return
 
         # 5. بناء المراجع بنظام متسامح مع أخطاء النموذج
-        # الـ Regex هنا يلتقط أي محتوى داخل [[ ]] ليعالجه
         valid_citations = list(set(re.findall(r'\[\[(.*?)\]\]', full_answer)))
         references_map = {}
         
         for citation_content in valid_citations:
-            # محاولة فصل اسم الكتاب عن أرقام الصفحات، حتى لو كان التنسيق سيئاً
             parts = re.split(r'[،,]', citation_content, maxsplit=1)
             if len(parts) == 2:
                 b_name = parts[0].strip()
                 pages_part = parts[1].replace('ص', '').strip()
                 
-                # التقاط أول رقم يظهر فقط (سواء كان في نطاق 87-88 أو قائمة 87, 566)
                 first_num_match = re.search(r'\d+', pages_part)
                 if first_num_match:
                     p_num = first_num_match.group(0)
                     
-                    # نستخدم citation_content كاملة كمفتاح لكي يتطابق مع الواجهة بالضبط
                     dict_key = citation_content 
                     
                     if b_name in self.books_data:
@@ -277,6 +296,10 @@ app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 system_instance = WebSearchSystem()
 
+@app.get("/")
+async def serve_frontend():
+    return FileResponse("index.html")
+
 @app.post("/chat_stream")
 async def chat_endpoint(request: Request):
     data = await request.json()
@@ -293,4 +316,5 @@ async def upload_file_endpoint(file: UploadFile = File(...)):
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    uvicorn.run("las:app", host="0.0.0.0", port=5001, reload=True)
+    port = int(os.environ.get("PORT", 5001))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
