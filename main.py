@@ -14,6 +14,8 @@ import uvicorn
 # ==========================================
 # ⚙️ الإعدادات 
 # ==========================================
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY") 
+# السطر التالي يمرر المفتاح للمكتبة (يجب أن يكون بعد تعريف المتغير)
 genai.configure(api_key=GOOGLE_API_KEY)
 
 MODEL_NAME = 'gemini-2.5-pro'
