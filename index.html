@@ -3,56 +3,30 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>البصيرة - خبير التراث الذكي</title>
+    <title>حكيم - خبير التراث الذكي</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-    
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
       body { font-family: 'Tajawal', sans-serif; }
       .font-amiri { font-family: 'Amiri', serif; }
-      
-      /* --- Custom Scrollbar --- */
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
       ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-      
       .fade-in { animation: fadeIn 0.3s ease-out; }
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(5px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-      .typing-cursor::after {
-        content: '';
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        background-color: #10b981;
-        border-radius: 50%;
-        margin-right: 5px;
-        vertical-align: baseline;
-        animation: pulse-soft 1s ease-in-out infinite;
-      }
-      
-      @keyframes pulse-soft {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(0.9); }
-      }
-
-      /* تنسيق المحتوى */
+      .typing-cursor::after { content: ''; display: inline-block; width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; margin-right: 5px; vertical-align: baseline; animation: pulse-soft 1s ease-in-out infinite; }
+      @keyframes pulse-soft { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.9); } }
       .markdown-content table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 1.5rem 0; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); font-size: 1rem; }
       .markdown-content thead { background-color: #f8fafc; }
       .markdown-content th { padding: 12px 16px; text-align: right; font-weight: 700; color: #1e293b; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
@@ -64,31 +38,8 @@
       .markdown-content h1, .markdown-content h2, .markdown-content h3 { font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #111827; }
       .markdown-content strong { color: #000; font-weight: 700; }
       .markdown-content p { margin-bottom: 0.75rem; }
-
-      /* تنسيق زر الاستشهاد داخل النص */
-      .citation-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 8px;
-        border-radius: 6px;
-        background-color: #ecfdf5;
-        color: #047857;
-        font-size: 0.9em;
-        font-weight: bold;
-        border: 1px solid #a7f3d0;
-        margin: 0 4px;
-        cursor: pointer;
-        vertical-align: baseline;
-        transition: all 0.2s;
-        text-decoration: none;
-      }
-      .citation-btn:hover {
-        background-color: #10b981;
-        color: white;
-        border-color: #059669;
-        transform: translateY(-1px);
-      }
+      .citation-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0 8px; border-radius: 6px; background-color: #ecfdf5; color: #047857; font-size: 0.9em; font-weight: bold; border: 1px solid #a7f3d0; margin: 0 4px; cursor: pointer; vertical-align: baseline; transition: all 0.2s; text-decoration: none; }
+      .citation-btn:hover { background-color: #10b981; color: white; border-color: #059669; transform: translateY(-1px); }
     </style>
 </head>
 <body class="bg-white text-gray-800 h-screen overflow-hidden">
@@ -97,22 +48,13 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
-        // تهيئة إعدادات Marked
-        marked.setOptions({
-            breaks: true,
-            gfm: true,
-            headerIds: false,
-            mangle: false
-        });
+        marked.setOptions({ breaks: true, gfm: true, headerIds: false, mangle: false });
 
         const Role = { USER: 'user', MODEL: 'model' };
 
-        // --- مكون مساعد للكتابة الحرفية (تم تأمينه ضد الكراش) ---
         const TypewriterText = ({ text }) => {
             const [displayed, setDisplayed] = useState("");
-            // حماية ضد النص الفارغ
             const safeText = String(text || "");
-
             useEffect(() => {
                 if (!safeText) return;
                 let i = 0;
@@ -127,7 +69,6 @@
             return <span>{displayed}</span>;
         };
 
-        // --- مكون التحليل (سجل البحث) ---
         const AnalysisLog = ({ evidence, isThinking }) => {
             const [isOpen, setIsOpen] = useState(false);
             const scrollRef = useRef(null);
@@ -137,26 +78,21 @@
             }, [evidence, isOpen]);
 
             if (!evidence || evidence.length === 0) {
-                return isThinking ? <div className="text-[10px] text-gray-400 mb-2 animate-pulse pr-4">جاري تفتيش الكتب...</div> : null;
+                return isThinking ? <div className="text-[10px] text-gray-400 mb-2 animate-pulse pr-4">جاري تحليل السياق والنصوص...</div> : null;
             }
 
             return (
                 <div className="mb-2 w-full max-w-[90%]">
-                    <button 
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="flex items-center gap-2 text-[10px] text-gray-400 hover:text-gray-600 transition-colors mb-1 pr-1 group select-none"
-                    >
+                    <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-2 text-[10px] text-gray-400 hover:text-gray-600 transition-colors mb-1 pr-1 group select-none">
                         {isOpen ? "إخفاء مسار البحث" : "عرض مسار البحث في الكتب"}
                         <span className={`transition-transform duration-200 text-[8px] ${isOpen ? 'rotate-180' : ''}`}>▼</span>
                         {isThinking && !isOpen && <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-ping mr-1"></span>}
                     </button>
-
                     {isOpen && (
                         <div ref={scrollRef} className="pl-4 pr-2 py-2 max-h-48 overflow-y-auto custom-scrollbar text-left border-r border-gray-100 fade-in" dir="ltr">
                             {evidence.map((item, idx) => (
                                 <div key={idx} className="mb-2 text-[10px] leading-relaxed text-gray-500 font-sans">
-                                    <span className="font-bold text-gray-600">[{item.title}]</span>{" "}
-                                    <TypewriterText text={item.text} />
+                                    <span className="font-bold text-gray-600">[{item.title}]</span> <TypewriterText text={item.text} />
                                 </div>
                             ))}
                             {isThinking && <div className="animate-pulse text-gray-300 text-[10px] mt-1">...</div>}
@@ -166,41 +102,33 @@
             );
         };
 
-        // --- نافذة عرض المصدر (الكتاب/الصفحة) ---
         const SourceViewerModal = ({ isOpen, onClose, docName, content }) => {
-            const [currentIndex, setCurrentIndex] = useState(0);
-
-            useEffect(() => {
-                if (isOpen && Array.isArray(content) && content.length > 0) {
-                    const targetIdx = content.findIndex(p => p.is_target);
-                    setCurrentIndex(targetIdx >= 0 ? targetIdx : 0);
-                }
-            }, [isOpen, content]);
-
             if (!isOpen || !content || content.length === 0) return null;
 
-            const pages = Array.isArray(content) ? content : [{ label: '', text: content }];
-            const currentPage = pages[currentIndex];
-
+            // جلب الصفحة المستهدفة أو أول صفحة لاستخراج الرقم
+            const pages = Array.isArray(content) ? content : [{ label: '1' }];
+            const targetPage = pages.find(p => p.is_target) || pages[0];
+            
             const getDisplayTitle = (label) => {
                 const str = String(label || '');
                 return str.includes('ص') ? str : (str ? `ص ${str}` : '');
             };
 
+            // رابط الـ PDF مضاف إليه رقم الصفحة لكي يفتح عليها مباشرة
+            const pdfUrl = `http://localhost:5001/pdf/${encodeURIComponent(docName)}#page=${targetPage.label}`;
+
             return (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-center items-center p-4 fade-in" onClick={onClose}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden border border-gray-100" onClick={(e) => e.stopPropagation()}>
-                        
-                        {/* Header */}
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden border border-gray-100" onClick={(e) => e.stopPropagation()}>
                         <header className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white flex-shrink-0">
                             <div className="flex items-center gap-3 min-w-0">
                                 <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg flex-shrink-0">
-                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                                 </div>
                                 <div className="flex flex-col">
-                                    <h2 className="text-xl font-bold text-gray-900 truncate">{docName || "زاد المعاد"}</h2>
+                                    <h2 className="text-xl font-bold text-gray-900 truncate">{docName}</h2>
                                     <span className="text-sm text-gray-500 font-medium">
-                                        {getDisplayTitle(currentPage.label)} {currentPage.is_target && <span className="text-amber-500">★ (موضع الشاهد)</span>}
+                                        {getDisplayTitle(targetPage.label)} <span className="text-amber-500">★ (موضع الشاهد)</span>
                                     </span>
                                 </div>
                             </div>
@@ -208,68 +136,22 @@
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                             </button>
                         </header>
-
-                        {/* Content Body */}
-                        <main className="flex-1 overflow-y-auto p-8 bg-[#ffffff] relative">
-                            <div className="max-w-3xl mx-auto" dir="rtl">
-                                <h3 className="text-center text-emerald-800 font-bold mb-6 text-2xl bg-emerald-50/50 py-3 rounded-lg border border-emerald-100/50">
-                                    {getDisplayTitle(currentPage.label)}
-                                </h3>
-                                <div className="text-gray-800 leading-[2.4] text-[20px] whitespace-pre-wrap text-justify font-amiri pl-2">
-                                    {currentPage.text}
-                                </div>
-                            </div>
+                        <main className="flex-1 overflow-hidden bg-gray-100 relative">
+                            {/* عرض الـ PDF كاملاً في إطار متصفح مع تمرير رقم الصفحة */}
+                            <iframe 
+                                src={pdfUrl} 
+                                className="w-full h-full border-none"
+                                title={docName}
+                            />
                         </main>
-                        
-                        {/* Footer (Navigation) */}
-                        <footer className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center flex-shrink-0">
-                            
-                            <button 
-                                onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
-                                disabled={currentIndex === 0}
-                                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-base font-bold transition-all shadow-sm ${
-                                    currentIndex === 0 
-                                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed shadow-none' 
-                                    : 'bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 border border-gray-200'
-                                }`}
-                            >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
-                                الصفحة السابقة
-                            </button>
-
-                            {/* مؤشر الصفحات */}
-                            <div className="flex gap-1.5">
-                                {pages.map((_, idx) => (
-                                    <div 
-                                        key={idx} 
-                                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'bg-emerald-500 w-5' : 'bg-gray-300'}`}
-                                    />
-                                ))}
-                            </div>
-
-                            <button 
-                                onClick={() => setCurrentIndex(prev => Math.min(pages.length - 1, prev + 1))}
-                                disabled={currentIndex === pages.length - 1}
-                                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-base font-bold transition-all shadow-sm ${
-                                    currentIndex === pages.length - 1 
-                                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed shadow-none' 
-                                    : 'bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 border border-gray-200'
-                                }`}
-                            >
-                                الصفحة التالية
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg>
-                            </button>
-                        </footer>
                     </div>
                 </div>
             );
         };
 
-        // --- ChatMessage Component ---
         const ChatMessage = ({ message, onCitationClick }) => {
             const isUser = message.role === Role.USER;
 
-            // 1. استخراج المراجع
             const { cleanText, referencesMap } = useMemo(() => {
                 if (isUser) return { cleanText: message.text, referencesMap: {} };
                 
@@ -291,18 +173,18 @@
                 return { cleanText: text, referencesMap: refs };
             }, [message.text, isUser]);
 
-            // 2. معالجة Markdown والاستشهادات
             const htmlContent = useMemo(() => {
                 if (isUser) return null;
-
-                // حماية النصوص
                 const safeText = String(cleanText || "");
 
-                let processedText = safeText.replace(/\((\d+\/\d+)\)/g, (match, pageNum) => {
-                    if (referencesMap && (referencesMap[pageNum] || referencesMap[`(${pageNum})`])) {
-                        return `<button class="citation-btn" data-page="${pageNum}">${match}</button>`;
+                const regex = /\[\[(.*?)\]\]/g;
+                let processedText = safeText.replace(regex, (match, contentInside) => {
+                    const dictKey = contentInside.trim();
+                    if (referencesMap && referencesMap[dictKey]) {
+                        const bookNameMatch = dictKey.split(/[،,]/)[0].trim();
+                        return `<button class="citation-btn" data-key="${dictKey}" data-book="${bookNameMatch}">${bookNameMatch}</button>`;
                     }
-                    return match;
+                    return `[${contentInside.trim()}]`;
                 });
 
                 try {
@@ -312,16 +194,13 @@
                 }
             }, [cleanText, referencesMap, isUser]);
 
-            // 3. التعامل مع النقرات
             const handleContentClick = useCallback((e) => {
                 const btn = e.target.closest('.citation-btn');
                 if (btn) {
-                    const pageNum = btn.getAttribute('data-page');
-                    if (referencesMap) {
-                        const bundle = referencesMap[pageNum] || referencesMap[`(${pageNum})`];
-                        if (bundle) {
-                            onCitationClick("زاد المعاد", bundle);
-                        }
+                    const dictKey = btn.getAttribute('data-key');
+                    const bookName = btn.getAttribute('data-book');
+                    if (referencesMap && referencesMap[dictKey]) {
+                        onCitationClick(bookName, referencesMap[dictKey]);
                     }
                 }
             }, [referencesMap, onCitationClick]);
@@ -333,21 +212,10 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
                         </div>
                     )}
-                    
                     <div className={`flex flex-col max-w-[90%] ${isUser ? 'items-end' : 'items-start min-w-0'}`}>
-                        
                         {!isUser && <AnalysisLog evidence={message.evidence} isThinking={message.isThinking} />}
-
                         <div className={`px-6 py-4 text-lg leading-relaxed text-justify ${isUser ? 'bg-[#f4f4f4] text-gray-900 rounded-3xl whitespace-pre-wrap' : 'bg-transparent text-gray-800 px-0 py-0 w-full'}`}>
-                            {isUser ? (
-                                cleanText
-                            ) : (
-                                <div 
-                                    className="markdown-content overflow-x-auto"
-                                    dangerouslySetInnerHTML={{ __html: htmlContent }} 
-                                    onClick={handleContentClick}
-                                />
-                            )}
+                            {isUser ? cleanText : <div className="markdown-content overflow-x-auto" dangerouslySetInnerHTML={{ __html: htmlContent }} onClick={handleContentClick} />}
                             {!isUser && message.isThinking && <span className="typing-cursor"></span>}
                         </div>
                     </div>
@@ -355,7 +223,6 @@
             );
         };
 
-        // --- Sidebar ---
         const Sidebar = ({ isOpen, setIsOpen, onNewChat }) => {
             return (
                 <>
@@ -377,8 +244,8 @@
                         <div className="flex-1 overflow-y-auto px-3"></div>
                         <div className="p-2 border-t border-gray-200 bg-[#F9F9F9]">
                             <button className="flex items-center gap-3 w-full p-2 hover:bg-gray-200/50 rounded-lg transition-colors text-right">
-                                <div className="w-8 h-8 rounded-full bg-gray-200 border border-gray-300 flex items-center justify-center text-gray-600 font-bold text-xs shadow-sm">ط.ع</div>
-                                <div className="flex flex-col"><span className="text-sm font-bold text-gray-800">طالب العلم</span><span className="text-[10px] text-gray-500">student@elm.com</span></div>
+                                <div className="w-8 h-8 rounded-full bg-gray-200 border border-gray-300 flex items-center justify-center text-gray-600 font-bold text-xs shadow-sm">ح</div>
+                                <div className="flex flex-col"><span className="text-sm font-bold text-gray-800">حكيم</span><span className="text-[10px] text-gray-500">law@mohcam.com</span></div>
                             </button>
                         </div>
                     </aside>
@@ -387,8 +254,6 @@
             );
         };
 
-        // --- ChatInput ---
-        // التعديل هنا: تصغير عرض الحاوية (max-w-3xl) وتقليل الارتفاع والخطوط
         const ChatInput = ({ onSendMessage, isLoading }) => {
             const [inputValue, setInputValue] = useState('');
             const [attachment, setAttachment] = useState(null); 
@@ -407,16 +272,11 @@
             const handleFileChange = async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                
                 setIsUploading(true);
                 const formData = new FormData();
                 formData.append('file', file);
-
                 try {
-                    const res = await fetch('/upload_file', {
-                        method: 'POST',
-                        body: formData
-                    });
+                    const res = await fetch('http://localhost:5001/upload_file', { method: 'POST', body: formData });
                     const data = await res.json();
                     if (data.error) throw new Error(data.error);
                     setAttachment(data);
@@ -445,33 +305,12 @@
             };
 
             return (
-                // التعديل: تغيير max-w-4xl إلى max-w-3xl لتصغير العرض
                 <div className="w-full max-w-3xl mx-auto relative">
-                    {/* التعديل: تغيير py-3 إلى py-2 وتصغير التدوير */}
                     <form onSubmit={handleSubmit} className={`relative flex items-end gap-2 bg-[#f4f4f4] rounded-[22px] px-3 py-2 shadow-sm border border-transparent focus-within:border-gray-300 focus-within:bg-white focus-within:shadow-md transition-all duration-200 ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}>
-                        
-                        <input 
-                            type="file" 
-                            accept=".pdf,.txt" 
-                            ref={fileInputRef} 
-                            className="hidden" 
-                            onChange={handleFileChange}
-                        />
-                        <button 
-                            type="button" 
-                            disabled={isLoading || isUploading}
-                            onClick={() => fileInputRef.current.click()}
-                            className="p-1.5 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors mb-0.5"
-                            title="إرفاق وثيقة"
-                        >
-                            {isUploading ? (
-                                <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-                            ) : (
-                                // التعديل: تصغير الأيقونة إلى 20
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                            )}
+                        <input type="file" accept=".pdf,.txt" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
+                        <button type="button" disabled={isLoading || isUploading} onClick={() => fileInputRef.current.click()} className="p-1.5 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors mb-0.5" title="إرفاق وثيقة">
+                            {isUploading ? <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" /> : <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>}
                         </button>
-
                         <div className="flex-1 flex flex-col justify-center min-h-[38px]">
                             {attachment && (
                                 <div className="flex items-center gap-2 text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md w-fit mb-1 border border-emerald-100">
@@ -480,17 +319,13 @@
                                     <button type="button" onClick={() => setAttachment(null)} className="hover:text-red-500"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                 </div>
                             )}
-                            {/* التعديل: تصغير الخط إلى text-base (16px) بدلاً من text-lg */}
                             <textarea ref={textareaRef} value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown} placeholder={attachment ? "سل ما بدا لك حول المرفق..." : "سل ما بدا لك..."} disabled={isLoading} rows={1} className="w-full bg-transparent border-none resize-none focus:ring-0 text-gray-800 py-1 text-base placeholder:text-gray-400 overflow-y-auto leading-normal" />
                         </div>
-
                         <button type="submit" disabled={isLoading || (!inputValue.trim() && !attachment)} className={`p-1.5 rounded-full mb-0.5 transition-all duration-200 ${(inputValue.trim() || attachment) && !isLoading ? 'bg-black text-white hover:bg-gray-800' : 'bg-transparent text-gray-300 cursor-not-allowed'}`}>
                             {isLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>}
                         </button>
                     </form>
-
- 
-                    <p className="text-[10px] text-center text-gray-400 mt-2">البصيرة قد يخطئ. راجع المصادر المرفقة.</p>
+                    <p className="text-[10px] text-center text-gray-400 mt-2">حكيم قد يخطئ. راجع المصادر المرفقة.</p>
                 </div>
             );
         };
@@ -507,28 +342,15 @@
                 if (chatContainerRef.current) chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
             }, [messages, isThinking]);
 
-            const handleNewChat = () => {
-                setMessages([]);
-                setApiError(null);
-                setIsThinking(false);
-            };
-
-            const handleCitationClick = (docName, content) => {
-                setModalData({ docName, content });
-            };
+            const handleNewChat = () => { setMessages([]); setApiError(null); setIsThinking(false); };
+            const handleCitationClick = (docName, content) => { setModalData({ docName, content }); };
 
             const handleSendMessage = async (text, attachment = null) => {
                 if (!text.trim() && !attachment) return;
 
-                const historyPayload = messages.map(msg => ({
-                    role: msg.role === Role.USER ? "user" : "assistant",
-                    content: msg.text
-                }));
-
+                const historyPayload = messages.map(msg => ({ role: msg.role === Role.USER ? "user" : "assistant", content: msg.text }));
                 let displayText = text;
-                if (attachment) {
-                    displayText = text ? `[ملف مرفق: ${attachment.display_name}]\n${text}` : `[ملف مرفق: ${attachment.display_name}]`;
-                }
+                if (attachment) { displayText = text ? `[ملف مرفق: ${attachment.display_name}]\n${text}` : `[ملف مرفق: ${attachment.display_name}]`; }
 
                 const userMessage = { id: Date.now().toString(), role: Role.USER, text: displayText };
                 const botMsgId = (Date.now() + 1).toString();
@@ -539,14 +361,10 @@
                 setApiError(null);
 
                 try {
-                    const response = await fetch('/chat_stream', {
+                    const response = await fetch('http://localhost:5001/chat_stream', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            message: text || "تحليل الملف المرفق",
-                            history: historyPayload,
-                            attachment: attachment 
-                        })
+                        body: JSON.stringify({ message: text || "تحليل الملف المرفق", history: historyPayload, attachment: attachment })
                     });
 
                     const reader = response.body.getReader();
@@ -567,22 +385,15 @@
                                 const data = JSON.parse(line);
                                 setMessages(prev => prev.map(msg => {
                                     if (msg.id !== botMsgId) return msg;
-                                    if (data.type === 'evidence') {
-                                        return { ...msg, evidence: [...msg.evidence, { title: data.title || "النظام", text: data.content }] };
-                                    } else if (data.type === 'token') {
-                                        return { ...msg, text: msg.text + data.content };
-                                    } else if (data.type === 'error') {
-                                        setApiError(data.content);
-                                        return { ...msg, isThinking: false };
-                                    }
+                                    if (data.type === 'evidence') { return { ...msg, evidence: [...msg.evidence, { title: data.title || "النظام", text: data.content }] }; } 
+                                    else if (data.type === 'token') { return { ...msg, text: msg.text + data.content }; } 
+                                    else if (data.type === 'error') { setApiError(data.content); return { ...msg, isThinking: false }; }
                                     return msg;
                                 }));
                             } catch (e) { }
                         }
                     }
-                    
                     setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, isThinking: false } : m));
-
                 } catch (err) {
                     setApiError("فشل الاتصال بالخادم (تأكد من تشغيل ملف Python).");
                     setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, isThinking: false } : m));
@@ -597,10 +408,8 @@
                     <div className="flex-1 flex flex-col h-full relative min-w-0 bg-white">
                         <header className="h-14 flex items-center justify-between px-4 border-b border-gray-100/50">
                             <div className="flex items-center gap-3">
-                                {!isSidebarOpen && (
-                                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg></button>
-                                )}
-                                <span className="text-lg font-bold text-gray-800">البصيرة</span>
+                                {!isSidebarOpen && <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg></button>}
+                                <span className="text-lg font-bold text-gray-800">حكيم</span>
                                 <span className="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full font-medium">تجريبي</span>
                             </div>
                         </header>
@@ -609,7 +418,6 @@
                                 <div className="flex flex-col w-full pb-32 pt-4">
                                     {messages.map((msg) => (
                                         <div key={msg.id} className="w-full flex justify-center">
-                                            {/* التعديل: تقليص عرض النافذة إلى max-w-4xl */}
                                             <div className="w-full max-w-4xl px-4 py-6">
                                                 <ChatMessage message={msg} onCitationClick={handleCitationClick} />
                                             </div>
@@ -622,16 +430,16 @@
                                     <div className="bg-gradient-to-br from-emerald-50 to-white p-6 rounded-3xl mb-6 shadow-sm border border-emerald-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
                                     </div>
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-3">مرحباً، أنا البصيرة</h2>
-                                    <p className="text-gray-500 max-w-md mb-8 leading-relaxed">رفيقك في التراث الإسلامي. استنبط الفوائد من بطون الكتب بدقة ومنهجية.</p>
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-3">مرحباً، أنا حكيم</h2>
+                                    <p className="text-gray-500 max-w-md mb-8 leading-relaxed">مدرب فقط على المعايير الشرعية أيوفي وعلى قرارات الهيئة الشرعية بمصرف الراجحي حتى الآن.</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl">
-                                        <button onClick={() => handleSendMessage("ما دواء قسوة القلب؟")} className="group p-4 text-right bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-2xl transition-all shadow-sm hover:shadow-md">
-                                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 block mb-1">أعمال القلوب</span>
-                                            <span className="text-xs text-gray-400">"ما دواء قسوة القلب؟"</span>
+                                        <button onClick={() => handleSendMessage("ما حكم بطاقة الحسم الفوري؟")} className="group p-4 text-right bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-2xl transition-all shadow-sm hover:shadow-md">
+                                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 block mb-1">المعاملات المالية</span>
+                                            <span className="text-xs text-gray-400">"ما حكم بطاقة الحسم الفوري؟"</span>
                                         </button>
-                                        <button onClick={() => handleSendMessage("حكم الجمع بين الصلاتين")} className="group p-4 text-right bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-2xl transition-all shadow-sm hover:shadow-md">
-                                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 block mb-1">الفقه</span>
-                                            <span className="text-xs text-gray-400">"ما حكم الجمع بين الصلاتين؟"</span>
+                                        <button onClick={() => handleSendMessage("شروط المرابحة للأمر بالشراء")} className="group p-4 text-right bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-2xl transition-all shadow-sm hover:shadow-md">
+                                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 block mb-1">البيوع</span>
+                                            <span className="text-xs text-gray-400">"شروط المرابحة للأمر بالشراء"</span>
                                         </button>
                                     </div>
                                 </div>
