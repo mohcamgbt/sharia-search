@@ -40,7 +40,7 @@
       .markdown-content p { margin-bottom: 0.75rem; }
       .citation-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0 8px; border-radius: 6px; background-color: #ecfdf5; color: #047857; font-size: 0.9em; font-weight: bold; border: 1px solid #a7f3d0; margin: 0 4px; cursor: pointer; vertical-align: baseline; transition: all 0.2s; text-decoration: none; }
       .citation-btn:hover { background-color: #10b981; color: white; border-color: #059669; transform: translateY(-1px); }
-      .safe-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+      .safe-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); transition: padding-bottom 0.2s ease; }
     </style>
 </head>
 <body class="bg-white text-gray-800 h-screen overflow-hidden">
@@ -479,6 +479,28 @@
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
+    </script>
+    <script>
+      function updateSafeBottom() {
+        const isSafariMobile = /iP(hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent) && !window.MSStream;
+        if (!isSafariMobile) return;
+        const screenH = screen.height;
+        const windowH = window.innerHeight;
+        const diff = screenH - windowH;
+        let extra = 0;
+        if (diff > 120) extra = 84;
+        else if (diff > 60) extra = 64;
+        else extra = 44;
+        document.querySelectorAll('.safe-bottom').forEach(el => {
+          el.style.paddingBottom = 'calc(env(safe-area-inset-bottom) + ' + extra + 'px)';
+        });
+      }
+      window.addEventListener('resize', updateSafeBottom);
+      window.addEventListener('orientationchange', updateSafeBottom);
+      document.addEventListener('DOMContentLoaded', updateSafeBottom);
+      window.addEventListener('load', updateSafeBottom);
+      setTimeout(updateSafeBottom, 300);
+      setTimeout(updateSafeBottom, 1000);
     </script>
 </body>
 </html>
