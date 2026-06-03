@@ -40,6 +40,7 @@
       .markdown-content p { margin-bottom: 0.75rem; }
       .citation-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0 8px; border-radius: 6px; background-color: #ecfdf5; color: #047857; font-size: 0.9em; font-weight: bold; border: 1px solid #a7f3d0; margin: 0 4px; cursor: pointer; vertical-align: baseline; transition: all 0.2s; text-decoration: none; }
       .citation-btn:hover { background-color: #10b981; color: white; border-color: #059669; transform: translateY(-1px); }
+      .safe-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
     </style>
 </head>
 <body class="bg-white text-gray-800 h-screen overflow-hidden">
@@ -467,7 +468,7 @@
                                 </div>
                             )}
                         </div>
-                        <div className="w-full flex justify-center p-4 bg-white pt-2">
+                        <div className="w-full flex justify-center p-4 bg-white pt-2 safe-bottom">
                             <ChatInput onSendMessage={handleSendMessage} isLoading={isThinking} />
                         </div>
                     </div>
